@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/login-screen.css">
+    <title>Tela de Login</title>
+</head>
+<body>
+    <div class="login-container">
+
+        <h2>Login</h2>
+
+        <form action="home.html" method="POST">
+
+            <div class="input-group">
+                <label>Login</label>
+                <input type="text" name="login" placeholder="Digite seu login" required>
+            </div>
+
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" name="senha" placeholder="Digite sua senha" required>
+            </div>
+
+            <div class="options">
+                <label>
+                    <input type="checkbox">
+                    Lembrar-me
+                </label>
+
+                <a href="recuperar_senha.html">
+                    Recuperar senha
+                </a>
+            </div>
+
+            <button onclick="window.location.href='index.html'" type="submit" class="login-btn">
+                ENTRAR
+            </button>
+
+        </form>
+
+    </div>
+</body>
+</html>

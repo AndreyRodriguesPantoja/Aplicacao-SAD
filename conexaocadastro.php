@@ -66,9 +66,19 @@ VALUES(
 )";
 
 if(mysqli_query($conexao, $sql)){
-    echo "Cadastro realizado com sucesso!";
+    echo "
+    <script>
+        alert('Cadastro realizado com sucesso!');
+        window.location.href='cadastro.html';
+    </script>
+    ";
 }else{
-    echo "Erro ao cadastrar!";
+    echo "
+    <script>
+        alert('Erro ao cadastrar!');
+        history.back();
+    </script>
+    ";
 }
 
 ?>

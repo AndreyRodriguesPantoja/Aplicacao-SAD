@@ -1,3 +1,18 @@
+<?php
+
+session_start();
+
+if(!isset($_SESSION['id_funcionarios'])){
+    header("Location: login-screen.html");
+    exit;
+}
+
+?>
+<h2>
+Bem-vindo,
+<?php echo $_SESSION['nome_funcionarios']; ?>
+</h2>
+
 <!doctype html>
 <html lang="pt-br">
 

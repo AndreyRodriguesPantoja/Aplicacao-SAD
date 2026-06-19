@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestão de Apólices — SAD Super Seguro</title>
+    <link rel="stylesheet" href="css/apolices.css" />
+  </head>
+  <body>
+    <!-- ── Topbar ── -->
+    <header class="topbar">
+      <a class="topbar-brand" href="index.html">
+        <span>Super Seguro</span>
+      </a>
+      <nav class="topbar-nav">
+        <a href="index.html">Dashboard</a>
+        <a href="painel_funcionario.php">Painel</a>
+        <a href="apolices_analista.html" class="active">Apólices</a>
+        <a href="logout.php">Sair</a>
+      </nav>
+    </header>
+
+    <!-- ── Conteúdo ── -->
+    <main class="page-wrapper">
+      <div
+        class="page-header"
+        style="
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 1rem;
+        "
+      >
+        <div>
+          <h1>Gestão de Apólices</h1>
+          <p>
+            Visualize, filtre e gere novas apólices para os clientes
+            cadastrados.
+          </p>
+        </div>
+        <button class="btn btn-primary" onclick="App.abrirModalNova()">
+          + Nova Apólice
+        </button>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-strip cols-4" id="kpiStrip">
+        <div class="kpi blue">
+          <label>Total de Apólices</label>
+          <strong id="kpiTotal">—</strong>
+        </div>
+        <div class="kpi green">
+          <label>Ativas</label>
+          <strong id="kpiAtivas">—</strong>
+        </div>
+        <div class="kpi amber">
+          <label>Suspensas</label>
+          <strong id="kpiSuspensas">—</strong>
+        </div>
+        <div class="kpi red">
+          <label>Canceladas</label>
+          <strong id="kpiCanceladas">—</strong>
+        </div>
+      </div>
+
+      <!-- Tabela de apólices -->
+      <div class="card">
+        <!-- Barra de filtros -->
+        <div class="filter-bar">
+          <div class="form-group">
+            <label class="form-label">Buscar cliente</label>
+            <input
+              type="text"
+              class="form-control"
+              id="filtroBusca"
+              placeholder="Nome ou CPF…"
+              onkeydown="if (event.key === 'Enter') App.carregar();"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo de Seguro</label>
+            <select class="form-select" id="filtroTipo">
+              <option value="">Todos</option>
+              <option value="Vida">Seguro de Vida</option>
+              <option value="Saude">Seguro Saúde</option>
+              <option value="Auto">Seguro Auto</option>
+              <option value="Residencial">Seguro Residencial</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="filtroStatus">
+              <option value="">Todos</option>
+              <option value="ativa" selected>Ativa</option>
+              <option value="suspensa">Suspensa</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="expirada">Expirada</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex: 0">
+            <label class="form-label">&nbsp;</label>
+            <div style="display: flex; gap: 0.5rem">
+              <button class="btn btn-primary" onclick="App.carregar()">
+                Buscar
+              </button>
+              <button class="btn btn-outline" onclick="App.limparFiltros()">
+                Limpar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabela -->
+        <div class="table-wrap">
+          <table id="tabelaApolices">
+            <thead>
+              <tr>
+                <th>Nº Apólice</th>
+                <th>Cliente</th>
+                <th>CPF</th>
+                <th>Tipo</th>
+                <th>Cobertura</th>
+                <th>Prêmio/mês</th>
+                <th>Risco</th>
+                <th>Vigência</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabela">
+              <tr>
+                <td colspan="10">
+                  <div class="empty-state">
+                    <span class="icon">⏳</span>
+                    <p>Carregando apólices…</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Rodapé da tabela -->
+        <div
+          style="
+            padding: 0.75rem 1.25rem;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            color: var(--gray-500);
+          "
+        >
+          <span id="totalRegistros">—</span>
+          <button class="btn btn-outline btn-sm" onclick="App.exportarCSV()">
+            ⬇ Exportar CSV
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ══════════════════════════════════════════
+     MODAL: Nova Apólice
+══════════════════════════════════════════ -->
+    <div class="modal-backdrop" id="modalNova">
+      <div class="modal-box" style="max-width: 680px">
+        <div class="modal-head">
+          <h3>Nova Apólice</h3>
+          <button class="modal-close" onclick="App.fecharModal('modalNova')">
+            ✕
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="formNovaApolice" onsubmit="return false;">
+            <!-- Bloco 1: Cliente -->
+            <fieldset style="border: none; padding: 0; margin-bottom: 1.25rem">
+              <legend
+                style="
+                  font-size: 0.78rem;
+                  font-weight: 700;
+                  text-transform: uppercase;
+                  letter-spacing: 0.6px;
+                  color: var(--gray-500);
+                  margin-bottom: 0.75rem;
+                "
+              >
+                Dados do Cliente
+              </legend>
+              <div class="form-grid cols-2">
+                <div class="form-group span-2">
+                  <label class="form-label">CPF do Cliente *</label>
+                  <div style="display: flex; gap: 0.5rem">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="novaApCpf"
+                      maxlength="11"
+                      placeholder="Somente números (11 dígitos)"
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-outline"
+                      onclick="App.buscarCliente()"
+                      style="white-space: nowrap"
+                    >
+                      Buscar
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Nome do Cliente</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="novaApNome"
+                    readonly
+                    placeholder="Preenchido automaticamente"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Risco Atual</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="novaApRisco"
+                    readonly
+                    placeholder="Obtido do histórico"
+                  />
+                </div>
+              </div>
+              <input type="hidden" id="novaApUsuarioId" />
+            </fieldset>
+
+            <!-- Bloco 2: Apólice -->
+            <fieldset style="border: none; padding: 0">
+              <legend
+                style="
+                  font-size: 0.78rem;
+                  font-weight: 700;
+                  text-transform: uppercase;
+                  letter-spacing: 0.6px;
+                  color: var(--gray-500);
+                  margin-bottom: 0.75rem;
+                "
+              >
+                Dados da Apólice
+              </legend>
+              <div class="form-grid cols-2">
+                <div class="form-group">
+                  <label class="form-label">Tipo de Seguro *</label>
+                  <select
+                    class="form-select"
+                    id="novaApTipo"
+                    onchange="App.calcularPremio()"
+                  >
+                    <option value="">Selecione…</option>
+                    <option value="Vida">Seguro de Vida</option>
+                    <option value="Saude">Seguro Saúde</option>
+                    <option value="Auto">Seguro Auto</option>
+                    <option value="Residencial">Seguro Residencial</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Valor de Cobertura (R$) *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    class="form-control"
+                    id="novaApCobertura"
+                    placeholder="Ex: 100000.00"
+                    oninput="App.calcularPremio()"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Início da Vigência *</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="novaApInicio"
+                    oninput="App.sugerirFim()"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Fim da Vigência *</label>
+                  <input type="date" class="form-control" id="novaApFim" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Prêmio Mensal (R$)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    class="form-control"
+                    id="novaApPremio"
+                    placeholder="Calculado automaticamente"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status inicial</label>
+                  <select class="form-select" id="novaApStatus">
+                    <option value="ativa">Ativa</option>
+                    <option value="suspensa">
+                      Suspensa (aguarda documentação)
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group span-2">
+                  <label class="form-label"
+                    >Observações / Cláusulas Especiais</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="novaApObs"
+                    placeholder="Descreva condições especiais, exclusões ou notas adicionais…"
+                  ></textarea>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Preview do prêmio -->
+            <div
+              id="previewPremio"
+              style="
+                display: none;
+                margin-top: 1rem;
+                background: var(--blue-light);
+                border-radius: var(--radius-sm);
+                padding: 0.75rem 1rem;
+                font-size: 0.87rem;
+                color: var(--blue-deep);
+              "
+            ></div>
+          </form>
+        </div>
+        <div class="modal-foot">
+          <button
+            class="btn btn-outline"
+            onclick="App.fecharModal('modalNova')"
+          >
+            Cancelar
+          </button>
+          <button
+            class="btn btn-primary"
+            id="btnSalvarApolice"
+            onclick="App.salvarApolice()"
+          >
+            💾 Salvar Apólice
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+     MODAL: Alterar Status
+══════════════════════════════════════════ -->
+    <div class="modal-backdrop" id="modalStatus">
+      <div class="modal-box" style="max-width: 420px">
+        <div class="modal-head">
+          <h3>Alterar Status da Apólice</h3>
+          <button class="modal-close" onclick="App.fecharModal('modalStatus')">
+            ✕
+          </button>
+        </div>
+        <div class="modal-body">
+          <p
+            style="font-size: 0.9rem; color: var(--gray-700); margin: 0 0 1rem"
+          >
+            Apólice: <strong id="statusApoliceName">—</strong>
+          </p>
+          <div class="form-group">
+            <label class="form-label">Novo Status</label>
+            <select class="form-select" id="novoStatus">
+              <option value="ativa">Ativa</option>
+              <option value="suspensa">Suspensa</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="expirada">Expirada</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-top: 0.75rem">
+            <label class="form-label">Motivo (opcional)</label>
+            <textarea
+              class="form-control"
+              id="motivoStatus"
+              placeholder="Descreva o motivo da alteração…"
+              rows="2"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button
+            class="btn btn-outline"
+            onclick="App.fecharModal('modalStatus')"
+          >
+            Cancelar
+          </button>
+          <button class="btn btn-amber" onclick="App.confirmarStatus()">
+            Confirmar Alteração
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Toast ── -->
+    <div id="toastArea"></div>
+
+    <script>
+      /* ============================================================
+   apolices_analista.html — lógica do painel do analista
+   ============================================================ */
+
+      // ── Utilitários ──────────────────────────────────────────────
+      const toast = (msg, tipo = "info") => {
+        const el = document.createElement("div");
+        el.className = `toast ${tipo}`;
+        el.textContent = msg;
+        document.getElementById("toastArea").appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+      };
+
+      const fmt = {
+        moeda: (v) =>
+          "R$ " +
+          Number(v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 }),
+        data: (v) =>
+          v ? new Date(v + "T00:00:00").toLocaleDateString("pt-BR") : "—",
+        cpf: (v) =>
+          v ? v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : "—",
+      };
+
+      // Taxas base por tipo de seguro (% do valor de cobertura ao mês)
+      const TAXAS = {
+        Vida: 0.003,
+        Saude: 0.005,
+        Auto: 0.008,
+        Residencial: 0.004,
+      };
+
+      // ── Estado global ─────────────────────────────────────────────
+      let _apoliceEditandoId = null;
+      let _dadosTabela = [];
+
+      // ── App ───────────────────────────────────────────────────────
+      const App = {
+        // ── Carregar tabela ──
+        async carregar() {
+          const params = new URLSearchParams({ t: Date.now() });
+          const busca = document.getElementById("filtroBusca").value.trim();
+          const tipo = document.getElementById("filtroTipo").value;
+          const status = document.getElementById("filtroStatus").value;
+
+          if (busca) params.set("busca", busca);
+          if (tipo) params.set("tipo", tipo);
+          if (status) params.set("status", status);
+
+          document.getElementById("corpoTabela").innerHTML = `
+      <tr><td colspan="10">
+        <div class="empty-state"><span class="icon">⏳</span><p>Carregando…</p></div>
+      </td></tr>`;
+
+          try {
+            const res = await fetch(`get_apolices.php?${params}`);
+            const data = await res.json();
+            if (data.erro) throw new Error(data.erro);
+
+            _dadosTabela = data.apolices || [];
+            this.renderKPIs(data.totais || []);
+            this.renderTabela(_dadosTabela);
+          } catch (e) {
+            console.error(e);
+            document.getElementById("corpoTabela").innerHTML = `
+        <tr><td colspan="10">
+          <div class="empty-state"><span class="icon">❌</span><p>${e.message}</p></div>
+        </td></tr>`;
+          }
+        },
+
+        renderKPIs(totais) {
+          const mapa = Object.fromEntries(
+            totais.map((t) => [t.status, Number(t.total)]),
+          );
+          const total = Object.values(mapa).reduce((s, v) => s + v, 0);
+          document.getElementById("kpiTotal").textContent = total;
+          document.getElementById("kpiAtivas").textContent = mapa["ativa"] || 0;
+          document.getElementById("kpiSuspensas").textContent =
+            mapa["suspensa"] || 0;
+          document.getElementById("kpiCanceladas").textContent =
+            mapa["cancelada"] || 0;
+        },
+
+        renderTabela(apolices) {
+          const tbody = document.getElementById("corpoTabela");
+          document.getElementById("totalRegistros").textContent =
+            `${apolices.length} registro(s) encontrado(s)`;
+
+          if (!apolices.length) {
+            tbody.innerHTML = `
+        <tr><td colspan="10">
+          <div class="empty-state">
+            <span class="icon">📋</span>
+            <p>Nenhuma apólice encontrada. Ajuste os filtros ou <a href="#" onclick="App.abrirModalNova()">crie uma nova</a>.</p>
+          </div>
+        </td></tr>`;
+            return;
+          }
+
+          const badgeStatus = (s) =>
+            ({
+              ativa: '<span class="badge badge-ativa">Ativa</span>',
+              suspensa: '<span class="badge badge-suspensa">Suspensa</span>',
+              cancelada: '<span class="badge badge-cancelada">Cancelada</span>',
+              expirada: '<span class="badge badge-expirada">Expirada</span>',
+            })[s] || s;
+
+          const badgeRisco = (r) => {
+            const v = Number(r || 0);
+            if (v <= 2) return '<span class="badge badge-baixo">Baixo</span>';
+            if (v <= 5)
+              return '<span class="badge badge-moderado">Moderado</span>';
+            return '<span class="badge badge-alto">Alto</span>';
+          };
+
+          tbody.innerHTML = apolices
+            .map(
+              (a) => `
+      <tr>
+        <td><code>${a.numero_apolice || "—"}</code></td>
+        <td style="font-weight:500">${a.cliente || "—"}</td>
+        <td>${fmt.cpf(a.cpf)}</td>
+        <td>${a.tipo_seguro || "—"}</td>
+        <td>${fmt.moeda(a.valor_cobertura)}</td>
+        <td>${fmt.moeda(a.valor_premio)}</td>
+        <td>${badgeRisco(a.media_risco)}</td>
+        <td style="white-space:nowrap;font-size:.82rem">
+          ${fmt.data(a.data_inicio)} →<br>${fmt.data(a.data_fim)}
+        </td>
+        <td>${badgeStatus(a.status)}</td>
+        <td>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+            <button class="btn btn-outline btn-sm"
+                    onclick="App.abrirModalStatus(${a.id}, '${a.numero_apolice}', '${a.status}')">
+              Alterar
+            </button>
+          </div>
+        </td>
+      </tr>`,
+            )
+            .join("");
+        },
+
+        limparFiltros() {
+          ["filtroBusca"].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.value = "";
+          });
+          ["filtroTipo", "filtroStatus"].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.selectedIndex = 0;
+          });
+          this.carregar();
+        },
+
+        // ── Buscar cliente por CPF ──
+        async buscarCliente() {
+          const cpf = document
+            .getElementById("novaApCpf")
+            .value.replace(/\D/g, "");
+          if (cpf.length !== 11) {
+            toast("CPF deve ter 11 dígitos.", "error");
+            return;
+          }
+
+          try {
+            const res = await fetch(
+              `get_apolices.php?buscar_cliente=1&cpf=${cpf}`,
+            );
+            const data = await res.json();
+            if (data.erro || !data.cliente) {
+              toast("Cliente não encontrado.", "error");
+              return;
+            }
+
+            const c = data.cliente;
+            document.getElementById("novaApNome").value = c.nome;
+            document.getElementById("novaApUsuarioId").value = c.id;
+            document.getElementById("novaApRisco").value = c.media_risco
+              ? (Number(c.media_risco) <= 2
+                  ? "Baixo"
+                  : Number(c.media_risco) <= 5
+                    ? "Moderado"
+                    : "Alto") + ` (score ${Number(c.media_risco).toFixed(1)})`
+              : "Sem histórico";
+
+            toast(`Cliente "${c.nome}" carregado.`, "success");
+          } catch (e) {
+            toast("Erro ao buscar cliente.", "error");
+          }
+        },
+
+        // ── Cálculo automático do prêmio ──
+        calcularPremio() {
+          const tipo = document.getElementById("novaApTipo").value;
+          const cobertura =
+            parseFloat(document.getElementById("novaApCobertura").value) || 0;
+          const taxa = TAXAS[tipo] || 0;
+          const riscoBruto = document.getElementById("novaApRisco").value;
+
+          if (!tipo || !cobertura) {
+            document.getElementById("previewPremio").style.display = "none";
+            return;
+          }
+
+          // Ajuste de risco (+20% moderado, +40% alto)
+          const multiplicador = riscoBruto.includes("Moderado")
+            ? 1.2
+            : riscoBruto.includes("Alto")
+              ? 1.4
+              : 1.0;
+          const premio = cobertura * taxa * multiplicador;
+
+          document.getElementById("novaApPremio").value = premio.toFixed(2);
+          document.getElementById("previewPremio").style.display = "block";
+          document.getElementById("previewPremio").innerHTML = `
+      <strong>Cálculo automático:</strong>
+      Cobertura ${fmt.moeda(cobertura)} × taxa ${(taxa * 100).toFixed(1)}%
+      × fator de risco ${multiplicador.toFixed(1)}
+      = <strong>${fmt.moeda(premio)}/mês</strong>
+    `;
+        },
+
+        // ── Sugere data de fim (+1 ano) ──
+        sugerirFim() {
+          const inicio = document.getElementById("novaApInicio").value;
+          if (!inicio) return;
+          const fim = new Date(inicio);
+          fim.setFullYear(fim.getFullYear() + 1);
+          document.getElementById("novaApFim").value = fim
+            .toISOString()
+            .split("T")[0];
+        },
+
+        // ── Salvar nova apólice ──
+        async salvarApolice() {
+          const usuarioId = document.getElementById("novaApUsuarioId").value;
+          const tipo = document.getElementById("novaApTipo").value;
+          const cobertura = document.getElementById("novaApCobertura").value;
+          const premio = document.getElementById("novaApPremio").value;
+          const inicio = document.getElementById("novaApInicio").value;
+          const fim = document.getElementById("novaApFim").value;
+          const status = document.getElementById("novaApStatus").value;
+          const obs = document.getElementById("novaApObs").value;
+
+          if (!usuarioId) {
+            toast("Busque e selecione um cliente primeiro.", "error");
+            return;
+          }
+          if (!tipo || !cobertura || !inicio || !fim) {
+            toast("Preencha todos os campos obrigatórios (*).", "error");
+            return;
+          }
+          if (inicio >= fim) {
+            toast("A data de fim deve ser posterior à de início.", "error");
+            return;
+          }
+
+          const btn = document.getElementById("btnSalvarApolice");
+          btn.disabled = true;
+          btn.innerHTML = '<span class="spinner"></span> Salvando…';
+
+          try {
+            const res = await fetch("get_apolices.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                usuario_id: Number(usuarioId),
+                tipo_seguro: tipo,
+                valor_cobertura: parseFloat(cobertura),
+                valor_premio: parseFloat(premio) || 0,
+                data_inicio: inicio,
+                data_fim: fim,
+                status: status,
+                observacoes: obs,
+              }),
+            });
+            const data = await res.json();
+            if (data.status === "sucesso") {
+              toast(
+                `Apólice ${data.numero_apolice} criada com sucesso!`,
+                "success",
+              );
+              this.fecharModal("modalNova");
+              document.getElementById("formNovaApolice").reset();
+              document.getElementById("previewPremio").style.display = "none";
+              this.carregar();
+            } else {
+              toast("Erro: " + (data.erro || "Tente novamente."), "error");
+            }
+          } catch (e) {
+            toast("Falha de conexão ao salvar.", "error");
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = "💾 Salvar Apólice";
+          }
+        },
+
+        // ── Modal alterar status ──
+        abrirModalStatus(id, numero, statusAtual) {
+          _apoliceEditandoId = id;
+          document.getElementById("statusApoliceName").textContent = numero;
+          document.getElementById("novoStatus").value = statusAtual;
+          document.getElementById("motivoStatus").value = "";
+          document.getElementById("modalStatus").classList.add("open");
+        },
+
+        async confirmarStatus() {
+          const novoStatus = document.getElementById("novoStatus").value;
+          try {
+            const res = await fetch("get_apolices.php", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: _apoliceEditandoId,
+                status: novoStatus,
+              }),
+            });
+            const data = await res.json();
+            if (data.status === "sucesso") {
+              toast("Status atualizado com sucesso.", "success");
+              this.fecharModal("modalStatus");
+              this.carregar();
+            } else {
+              toast("Erro ao atualizar: " + (data.erro || ""), "error");
+            }
+          } catch (e) {
+            toast("Falha de conexão.", "error");
+          }
+        },
+
+        // ── Exportar CSV simples ──
+        exportarCSV() {
+          if (!_dadosTabela.length) {
+            toast("Nenhum dado para exportar.", "error");
+            return;
+          }
+          const cabecalho = [
+            "Apólice",
+            "Cliente",
+            "CPF",
+            "Tipo",
+            "Cobertura",
+            "Prêmio",
+            "Início",
+            "Fim",
+            "Status",
+          ];
+          const linhas = _dadosTabela.map((a) =>
+            [
+              a.numero_apolice,
+              a.cliente,
+              a.cpf,
+              a.tipo_seguro,
+              a.valor_cobertura,
+              a.valor_premio,
+              a.data_inicio,
+              a.data_fim,
+              a.status,
+            ]
+              .map((v) => `"${v || ""}"`)
+              .join(","),
+          );
+
+          const csv = [cabecalho.join(","), ...linhas].join("\n");
+          const blob = new Blob(["\uFEFF" + csv], {
+            type: "text/csv;charset=utf-8;",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `apolices_${Date.now()}.csv`;
+          a.click();
+          URL.revokeObjectURL(url);
+          toast("CSV exportado.", "success");
+        },
+
+        // ── Helpers de modal ──
+        abrirModalNova() {
+          document.getElementById("modalNova").classList.add("open");
+        },
+        fecharModal(id) {
+          document.getElementById(id).classList.remove("open");
+        },
+      };
+
+      // Fecha modais ao clicar no backdrop
+      document.querySelectorAll(".modal-backdrop").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          if (e.target === e.currentTarget) App.fecharModal(el.id);
+        });
+      });
+
+      // Inicializa
+      document.addEventListener("DOMContentLoaded", () => App.carregar());
+    </script>
+  </body>
+</html>

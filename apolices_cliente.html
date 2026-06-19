@@ -1,0 +1,252 @@
+<?php
+session_start();
+// Se o usuário não estiver logado, redireciona para a tela de login
+if (!isset($_SESSION['id'])) {
+    header("Location: login.html");
+    exit;
+}
+?>
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="usuario-id" content="<?= $_SESSION['id'] ?>" />
+    <title>Minhas Apólices — Super Seguro</title>
+    <link rel="stylesheet" href="css/apolices.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="topbar-brand" href="index.html">
+        <span>Super Seguro</span>
+      </a>
+      <nav class="topbar-nav">
+        <a href="index.html">Início</a>
+        <a href="apolices_cliente.php" class="active">Minhas Apólices</a>
+        <a href="logout.php">Sair</a>
+      </nav>
+    </header>
+
+    <main class="page-wrapper">
+      <div class="page-header">
+        <h1>Minhas Apólices</h1>
+        <p>
+          Acompanhe suas coberturas ativas, prazos de vigência e valores
+          contratados.
+        </p>
+      </div>
+
+      <div class="kpi-strip cols-3" id="kpiCliente">
+        <div class="kpi blue">
+          <label>Apólices Ativas</label><strong id="kpiAtivas">—</strong>
+        </div>
+        <div class="kpi green">
+          <label>Total em Cobertura</label><strong id="kpiCobertura">—</strong>
+        </div>
+        <div class="kpi amber">
+          <label>Próximo Vencimento</label><strong id="kpiVencimento">—</strong>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 1.5rem">
+        <div class="filter-bar">
+          <div class="form-group">
+            <label class="form-label">Tipo de Seguro</label>
+            <select class="form-select" id="filtroTipo">
+              <option value="">Todos</option>
+              <option value="Vida">Seguro de Vida</option>
+              <option value="Saude">Seguro Saúde</option>
+              <option value="Auto">Seguro Auto</option>
+              <option value="Residencial">Seguro Residencial</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="filtroStatus">
+              <option value="ativa">Ativas</option>
+              <option value="">Todas</option>
+              <option value="suspensa">Suspensas</option>
+              <option value="expirada">Expiradas</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex: 0">
+            <label class="form-label">&nbsp;</label>
+            <button class="btn btn-primary" onclick="App.carregar()">
+              Filtrar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="listaApolices">
+        <div class="empty-state">
+          <span class="icon">⏳</span>
+          <p>Carregando suas apólices…</p>
+        </div>
+      </div>
+    </main>
+
+    <div class="modal-backdrop" id="modalDetalhe">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3>Detalhes da Apólice</h3>
+          <button class="modal-close" onclick="App.fecharModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalDetalheBody"></div>
+        <div class="modal-foot">
+          <button class="btn btn-outline" onclick="App.fecharModal()">
+            Fechar
+          </button>
+          <button class="btn btn-primary" onclick="window.print()">
+            🖨️ Imprimir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastArea"></div>
+
+    <script>
+      // O seu script JS funciona perfeitamente capturando a tag dinâmica que criamos no topo
+      const USUARIO_ID =
+        document.querySelector('meta[name="usuario-id"]')?.content || "1";
+
+      const fmt = {
+        moeda: (v) =>
+          "R$ " +
+          Number(v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 }),
+        data: (v) =>
+          v ? new Date(v + "T00:00:00").toLocaleDateString("pt-BR") : "—",
+      };
+
+      const App = {
+        apolices: [],
+        async carregar() {
+          const tipo = document.getElementById("filtroTipo").value;
+          const status = document.getElementById("filtroStatus").value;
+          const params = new URLSearchParams({
+            usuario_id: USUARIO_ID,
+            t: Date.now(),
+          });
+          if (tipo) params.set("tipo", tipo);
+          if (status) params.set("status", status);
+
+          try {
+            const res = await fetch(`get_apolices.php?${params}`);
+            const data = await res.json();
+            if (data.erro) {
+              document.getElementById("listaApolices").innerHTML =
+                `<div class="empty-state"><span class="icon">⚠️</span><p>${data.erro}</p></div>`;
+              return;
+            }
+            this.apolices = data.apolices || [];
+            this.renderKPIs(data);
+            this.renderLista(this.apolices);
+          } catch (e) {
+            document.getElementById("listaApolices").innerHTML =
+              `<div class="empty-state"><span class="icon">❌</span><p>Erro ao carregar apólices.</p></div>`;
+          }
+        },
+        renderKPIs(data) {
+          const ativas = (data.apolices || []).filter(
+            (a) => a.status === "ativa",
+          );
+          const cobertura = ativas.reduce(
+            (s, a) => s + Number(a.valor_cobertura || 0),
+            0,
+          );
+          const datas = ativas
+            .map((a) => a.data_fim)
+            .filter(Boolean)
+            .sort();
+          document.getElementById("kpiAtivas").textContent = ativas.length;
+          document.getElementById("kpiCobertura").textContent =
+            fmt.moeda(cobertura);
+          document.getElementById("kpiVencimento").textContent = datas[0]
+            ? fmt.data(datas[0])
+            : "—";
+        },
+        renderLista(apolices) {
+          const container = document.getElementById("listaApolices");
+          if (!apolices.length) {
+            container.innerHTML = `<div class="empty-state"><span class="icon">📋</span><p>Nenhuma apólice encontrada.</p></div>`;
+            return;
+          }
+          container.innerHTML = apolices
+            .map((a) => this._cardApolice(a))
+            .join("");
+        },
+        _cardApolice(a) {
+          const pct = this._vigenciaPct(a.data_inicio, a.data_fim);
+          const barClass = pct > 85 ? "danger" : pct > 65 ? "warning" : "";
+          const statusBadge =
+            {
+              ativa: '<span class="badge badge-ativa">Ativa</span>',
+              suspensa: '<span class="badge badge-suspensa">Suspensa</span>',
+              expirada: '<span class="badge badge-expirada">Expirada</span>',
+              cancelada: '<span class="badge badge-cancelada">Cancelada</span>',
+            }[a.status] || a.status;
+
+          return `<div class="apolice-card" style="margin-bottom:1rem">
+            <div class="apolice-card-head">
+              <div><div class="numero">${a.numero_apolice || "—"}</div><div class="tipo">${a.tipo_seguro || "—"}</div></div>
+              ${statusBadge}
+            </div>
+            <div class="apolice-card-body">
+              <div class="info-row">
+                <div class="info-item"><span>Cobertura</span><strong>${fmt.moeda(a.valor_cobertura)}</strong></div>
+                <div class="info-item"><span>Prêmio</span><strong>${fmt.moeda(a.valor_premio)}</strong></div>
+                <div class="info-item"><span>Início</span><strong>${fmt.data(a.data_inicio)}</strong></div>
+                <div class="info-item"><span>Fim</span><strong>${fmt.data(a.data_fim)}</strong></div>
+              </div>
+              ${a.status === "ativa" ? `<div class="vigencia-bar"><div class="bar-track"><div class="bar-fill ${barClass}" style="width:${pct}%"></div></div></div>` : ""}
+            </div>
+            <div class="apolice-card-foot">
+              ${a.observacoes ? `<span>📝 ${a.observacoes}</span>` : "<span></span>"}
+              <button class="btn btn-outline btn-sm" onclick="App.verDetalhes(${a.id})">Ver detalhes</button>
+            </div>
+          </div>`;
+        },
+        _vigenciaPct(i, f) {
+          if (!i || !f) return 0;
+          const s = new Date(i).getTime(),
+            e = new Date(f).getTime(),
+            now = Date.now();
+          return Math.max(
+            0,
+            Math.min(100, Math.round(((now - s) / (e - s)) * 100)),
+          );
+        },
+        verDetalhes(id) {
+          const a = this.apolices.find((x) => x.id == id);
+          if (!a) return;
+          const pct = this._vigenciaPct(a.data_inicio, a.data_fim);
+          const statusBadge =
+            {
+              ativa: '<span class="badge badge-ativa">Ativa</span>',
+              suspensa: '<span class="badge badge-suspensa">Suspensa</span>',
+            }[a.status] || a.status;
+
+          document.getElementById("modalDetalheBody").innerHTML = `
+            <div style="display:grid;gap:1rem">
+              <div style="display:flex;justify-content:space-between"><strong>${a.numero_apolice}</strong>${statusBadge}</div>
+              <div class="form-grid cols-2">
+                <div class="info-item"><span>Tipo</span><strong>${a.tipo_seguro}</strong></div>
+                <div class="info-item"><span>Cobertura</span><strong>${fmt.moeda(a.valor_cobertura)}</strong></div>
+                <div class="info-item"><span>Média Risco</span><strong>${a.media_risco || "—"}</strong></div>
+              </div>
+            </div>`;
+          document.getElementById("modalDetalhe").classList.add("open");
+        },
+        fecharModal() {
+          document.getElementById("modalDetalhe").classList.remove("open");
+        },
+      };
+
+      document.getElementById("modalDetalhe").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) App.fecharModal();
+      });
+      document.addEventListener("DOMContentLoaded", () => App.carregar());
+    </script>
+  </body>
+</html>

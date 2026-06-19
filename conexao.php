@@ -1,7 +1,7 @@
 <?php
 $host = "localhost";
 $user = "root";
-$pass = "";
+$pass = "Teste1234@";
 $db = "sad_superseguro";
 /*$db   = "super_seguro";*/
 

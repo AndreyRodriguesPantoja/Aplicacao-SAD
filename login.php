@@ -62,7 +62,6 @@ try {
 
     header('Location: painel_funcionario.php');
     exit;
-
 } catch (PDOException $e) {
     error_log('Erro login: ' . $e->getMessage());
     header('Location: login-screen.html?erro=sistema');

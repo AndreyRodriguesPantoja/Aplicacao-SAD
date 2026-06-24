@@ -91,7 +91,7 @@ $tipoCor   = ['Vida'=>'#fee2e2','Saude'=>'#dbeafe','Auto'=>'#fef3c7','Residencia
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Minhas Apólices — SAD Super Seguro</title>
+  <title>Minhas Apólices — Super Seguro</title>
   <link rel="stylesheet" href="css/apolices.css" />
   <style>
     body { background: #f1f5f9; }
@@ -237,7 +237,7 @@ $tipoCor   = ['Vida'=>'#fee2e2','Saude'=>'#dbeafe','Auto'=>'#fef3c7','Residencia
 <header class="topbar">
   <a class="topbar-brand" href="painel_cliente.php">
     <span class="shield">🛡️</span>
-    SAD | <span>Super Seguro</span>
+    <span>Super Seguro</span>
   </a>
   <nav class="topbar-nav">
     <a href="painel_cliente.php">Início</a>

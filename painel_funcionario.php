@@ -104,22 +104,6 @@ $isGerente = ($perfil === 'gerente');
       margin: 2rem 0 .75rem;
     }
 
-    /* ── Info do usuário no topo ── */
-    .user-chip {
-      display: flex; align-items: center; gap: .6rem;
-      background: rgba(255,255,255,.12);
-      border-radius: 25px;
-      padding: .3rem .75rem .3rem .4rem;
-      font-size: .85rem;
-    }
-    .user-chip .avatar {
-      width: 30px; height: 30px;
-      background: rgba(255,255,255,.25);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
-    }
-
     @media (max-width: 600px) {
       .welcome-bar { padding: 2rem 1rem 4.5rem; }
       .welcome-bar::after { display: none; }
@@ -129,7 +113,6 @@ $isGerente = ($perfil === 'gerente');
 </head>
 <body>
 
-<!-- ── Topbar ── -->
 <header class="topbar">
   <a class="topbar-brand" href="painel_funcionario.php">
     <span class="shield">🛡️</span>
@@ -145,7 +128,6 @@ $isGerente = ($perfil === 'gerente');
   </nav>
 </header>
 
-<!-- ── Barra de boas-vindas ── -->
 <div class="welcome-bar">
   <div style="max-width:1200px;margin:0 auto">
     <div class="perfil-tag"><?= ucfirst($perfil) ?></div>
@@ -154,13 +136,10 @@ $isGerente = ($perfil === 'gerente');
   </div>
 </div>
 
-<!-- ── Conteúdo ── -->
 <div class="page-wrapper" style="max-width:1200px;margin:0 auto">
 
-  <!-- Grade de módulos -->
   <div class="modulos-grid">
 
-    <!-- Apólices — disponível para analista e gerente -->
     <a href="apolices_analista.html" class="modulo-card">
       <div class="modulo-icon" style="background:#dbeafe">📋</div>
       <h3>Gestão de Apólices</h3>
@@ -169,7 +148,6 @@ $isGerente = ($perfil === 'gerente');
     </a>
 
     <?php if ($isGerente): ?>
-    <!-- Dashboard BI — apenas gerente -->
     <a href="index.html" class="modulo-card">
       <div class="modulo-icon" style="background:#d1fae5">📊</div>
       <h3>Dashboard BI</h3>
@@ -177,7 +155,6 @@ $isGerente = ($perfil === 'gerente');
       <div class="modulo-arrow">Acessar módulo →</div>
     </a>
 
-    <!-- Relatório — apenas gerente -->
     <a href="index.html#relatorio" class="modulo-card">
       <div class="modulo-icon" style="background:#fef3c7">📈</div>
       <h3>Relatórios de Decisão</h3>
@@ -186,15 +163,13 @@ $isGerente = ($perfil === 'gerente');
     </a>
     <?php endif; ?>
 
-    <!-- Cadastro de clientes — analista e gerente -->
-    <a href="cadastro.html" class="modulo-card">
+    <a href="cadastro_cliente.php" class="modulo-card">
       <div class="modulo-icon" style="background:#ede9fe">👤</div>
       <h3>Cadastro de Clientes</h3>
       <p>Registre novos clientes no sistema com dados pessoais, endereço e situação financeira.</p>
-      <div class="modulo-arrow">Acessar módulo →</div>
+      <div class="modulo-arrow">Abrir Tela de Cadastro →</div>
     </a>
 
-    <!-- Simulador de risco — analista e gerente -->
     <a href="index.html" class="modulo-card">
       <div class="modulo-icon" style="background:#fee2e2">⚡</div>
       <h3>Simulador de Risco</h3>
@@ -202,11 +177,8 @@ $isGerente = ($perfil === 'gerente');
       <div class="modulo-arrow">Acessar módulo →</div>
     </a>
 
-  </div><!-- /modulos-grid -->
-
-  <!-- Informações da sessão -->
-  <div class="section-title">Informações da Sessão</div>
-  <div class="card">
+  </div><div class="section-title">Informações da Sessão</div>
+  <div class="card" style="background:#fff; border-radius:14px; padding:1.5rem; box-shadow:0 4px 20px rgba(0,0,0,.05);">
     <div class="card-body" style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
       <div style="font-size:2.5rem">🔐</div>
       <div style="display:grid;gap:.25rem">
@@ -217,17 +189,14 @@ $isGerente = ($perfil === 'gerente');
         </div>
       </div>
       <div style="margin-left:auto">
-        <a href="logout.php" class="btn btn-outline btn-sm">Encerrar sessão</a>
+        <a href="logout.php" class="btn btn-outline btn-sm" style="text-decoration:none; color:inherit; border:1px solid #cbd5e1; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem;">Encerrar sessão</a>
       </div>
     </div>
   </div>
 
-</div><!-- /page-wrapper -->
-
-<div id="toastArea"></div>
+</div><div id="toastArea"></div>
 
 <script>
-// Toast reutilizável
 const toast = (msg, tipo='info') => {
   const el = document.createElement('div');
   el.className = `toast ${tipo}`;
@@ -236,7 +205,6 @@ const toast = (msg, tipo='info') => {
   setTimeout(() => el.remove(), 3500);
 };
 
-// Mostra mensagem de erro de login redirecionado (se houver)
 const p = new URLSearchParams(location.search);
 if (p.get('aviso') === 'sessao') toast('Sessão expirada. Faça login novamente.', 'error');
 </script>

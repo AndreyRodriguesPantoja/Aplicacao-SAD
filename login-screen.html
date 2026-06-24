@@ -3,104 +3,259 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/login-screen.css" />
-    <title>Login — SAD Super Seguro</title>
+    <link rel="stylesheet" href="css/login.css" />
+    <title>Login — Super Seguro</title>
   </head>
   <body>
-    <div class="login-wrapper">
-      <div class="login-card">
-        <div class="login-logo">
-          <div class="logo-icon">🛡️</div>
-          <h4>SAD Super Seguro</h4>
-          <p>Sistema de Apoio à Decisão — Acesso Interno</p>
-        </div>
-
-        <!-- Mensagem de erro dinâmica -->
-        <div class="error-msg" id="errorMsg"></div>
-
-        <form action="login.php" method="POST" id="loginForm">
-          <div style="margin-bottom: 1rem">
-            <label class="form-label" for="usuario">Usuário</label>
-            <div class="input-icon-wrap">
-              <span class="icon">👤</span>
-              <input
-                type="text"
-                id="usuario"
-                name="usuario"
-                placeholder="Digite seu usuário"
-                required
-                autocomplete="username"
-              />
-            </div>
-          </div>
-
-          <div style="margin-bottom: 1rem">
-            <label class="form-label" for="senha">Senha</label>
-            <div class="input-icon-wrap">
-              <span class="icon">🔒</span>
-              <input
-                type="password"
-                id="senha"
-                name="senha"
-                placeholder="Digite sua senha"
-                required
-                autocomplete="current-password"
-              />
-            </div>
-          </div>
-
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 1.25rem;
-              font-size: 0.85rem;
-            "
-          >
-            <label
-              style="
-                display: flex;
-                align-items: center;
-                gap: 0.4rem;
-                cursor: pointer;
-                color: #374151;
-              "
-            >
-              <input type="checkbox" name="lembrar" /> Lembrar-me
-            </label>
-            <a href="recuperar_senha.html">Esqueci minha senha</a>
-          </div>
-
-          <button type="submit" class="btn-login" id="btnLogin">Entrar</button>
-        </form>
+    <!-- ══ LADO ESQUERDO — hero ══ -->
+    <section class="hero" aria-hidden="true">
+      <a class="hero-brand" href="#">
+        <span class="shield"></span>
+        <span>Super Seguro</span>
+      </a>
+      <div class="hero-body">
+        <h1>Além de Seguros</h1>
+        <p>
+          Plataforma integrada de gestão de apólices, análise de risco e suporte
+          à decisão para a Super Seguro.
+        </p>
       </div>
-    </div>
+      <div class="hero-features">
+        <div class="feat">
+          <div class="feat-icon">📋</div>
+          <div class="feat-text">
+            <strong>Gestão de Apólices</strong>
+            <span>Crie, monitore e gerencie apólices</span>
+          </div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">📊</div>
+          <div class="feat-text">
+            <strong>Dashboard BI</strong>
+            <span>KPIs e gráficos em tempo real</span>
+          </div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">⚡</div>
+          <div class="feat-text">
+            <strong>Análise de Risco</strong>
+            <span>Score automático por idade e IMC</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ LADO DIREITO — formulário ══ -->
+    <section class="form-side">
+      <div class="login-wrapper">
+        <div class="login-card">
+          <div class="login-logo">
+            <div class="logo-icon">🛡️</div>
+            <h4>Super Seguro</h4>
+            <p>Selecione seu perfil e faça login</p>
+          </div>
+
+          <div class="perfil-tabs" role="tablist">
+            <button
+              class="perfil-tab active"
+              data-perfil="funcionario"
+              type="button"
+              onclick="selecionarPerfil('funcionario', this)"
+            >
+              <span class="tab-icon">👔</span>
+              <span class="tab-label">Analista</span>
+            </button>
+            <button
+              class="perfil-tab"
+              data-perfil="gerente"
+              type="button"
+              onclick="selecionarPerfil('gerente', this)"
+            >
+              <span class="tab-icon">🏢</span>
+              <span class="tab-label">Gerente</span>
+            </button>
+            <button
+              class="perfil-tab"
+              data-perfil="cliente"
+              type="button"
+              onclick="selecionarPerfil('cliente', this)"
+            >
+              <span class="tab-icon">👤</span>
+              <span class="tab-label">Cliente</span>
+            </button>
+          </div>
+
+          <div class="error-msg" id="errorMsg" role="alert"></div>
+
+          <form action="login.php" method="POST" id="loginForm">
+            <input
+              type="hidden"
+              name="tipo_perfil"
+              id="tipoPerfil"
+              value="funcionario"
+            />
+
+            <div class="form-group">
+              <label class="form-label" for="usuario" id="labelUsuario"
+                >Usuário</label
+              >
+              <div class="input-icon-wrap">
+                <span class="icon">👤</span>
+                <input
+                  type="text"
+                  id="usuario"
+                  name="usuario"
+                  placeholder="Digite seu usuário"
+                  required
+                  autocomplete="username"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="senha">Senha</label>
+              <div class="input-icon-wrap">
+                <span class="icon">🔒</span>
+                <input
+                  type="password"
+                  id="senha"
+                  name="senha"
+                  placeholder="Digite sua senha"
+                  required
+                  autocomplete="current-password"
+                />
+                <button
+                  type="button"
+                  class="pw-toggle"
+                  id="pwToggle"
+                  aria-label="Mostrar senha"
+                  onclick="toggleSenha()"
+                >
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label class="lembrar-label">
+                <input type="checkbox" name="lembrar" /> Lembrar-me
+              </label>
+              <a href="recuperar_senha.html" class="link-recuperar"
+                >Esqueci minha senha</a
+              >
+            </div>
+
+            <button type="submit" class="btn-login" id="btnLogin">
+              Entrar
+            </button>
+          </form>
+
+          <div class="divider">ou</div>
+
+          <div class="login-footer">
+            Ainda não tem cadastro? <a href="cadastro.html">Crie sua conta</a>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <script>
-      // Mapeamento de códigos de erro da query string
+      const PERFIS = {
+        funcionario: {
+          action: "login.php",
+          label: "Usuário",
+          placeholder: "Digite seu email",
+        },
+        gerente: {
+          action: "login.php",
+          label: "Usuário",
+          placeholder: "Digite seu email",
+        },
+        cliente: {
+          action: "login_cliente.php",
+          label: "CPF",
+          placeholder: "000.000.000-00",
+        },
+      };
+      let perfilAtual = "funcionario";
+
+      function selecionarPerfil(perfil, btn) {
+        perfilAtual = perfil;
+        document
+          .querySelectorAll(".perfil-tab")
+          .forEach((t) => t.classList.remove("active"));
+        btn.classList.add("active");
+        const cfg = PERFIS[perfil];
+        document.getElementById("tipoPerfil").value = perfil;
+        document.getElementById("loginForm").action = cfg.action;
+        document.getElementById("labelUsuario").textContent = cfg.label;
+        document.getElementById("usuario").placeholder = cfg.placeholder;
+        document.getElementById("usuario").maxLength =
+          perfil === "cliente" ? 14 : 60;
+        document.getElementById("errorMsg").style.display = "none";
+      }
+
+      document.getElementById("usuario").addEventListener("input", function () {
+        if (perfilAtual !== "cliente") return;
+        let v = this.value.replace(/\D/g, "").slice(0, 11);
+        if (v.length > 9)
+          v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+        else if (v.length > 6)
+          v = v.replace(/(\d{3})(\d{3})(\d{0,3})/, "$1.$2.$3");
+        else if (v.length > 3) v = v.replace(/(\d{3})(\d{0,3})/, "$1.$2");
+        this.value = v;
+      });
+
+      function toggleSenha() {
+        const i = document.getElementById("senha");
+        const b = document.getElementById("pwToggle");
+        const s = i.type === "password";
+        i.type = s ? "text" : "password";
+        b.textContent = s ? "🙈" : "👁️";
+      }
+
       const ERROS = {
         credenciais: "Usuário ou senha inválidos.",
         campos_vazios: "Preencha o usuário e a senha.",
+        inativo: "Conta inativa. Contate o suporte.",
         sistema: "Erro interno. Tente novamente.",
-        sessao: "Sua sessão expirou. Faça login novamente.",
+        sessao: "Sessão expirada. Faça login novamente.",
       };
-
-      const params = new URLSearchParams(location.search);
-      const codigoErro = params.get("erro");
-      if (codigoErro) {
+      const p = new URLSearchParams(location.search);
+      if (p.get("erro")) {
         const el = document.getElementById("errorMsg");
-        el.textContent = ERROS[codigoErro] || "Erro ao fazer login.";
+        el.textContent = ERROS[p.get("erro")] || "Erro ao fazer login.";
         el.style.display = "block";
       }
+      if (p.get("perfil") && PERFIS[p.get("perfil")]) {
+        const aba = document.querySelector(
+          '[data-perfil="' + p.get("perfil") + '"]',
+        );
+        if (aba) selecionarPerfil(p.get("perfil"), aba);
+      }
 
-      // Feedback de loading no botão
       document
         .getElementById("loginForm")
-        .addEventListener("submit", function () {
+        .addEventListener("submit", function (e) {
+          const u = document.getElementById("usuario").value.trim();
+          const s = document.getElementById("senha").value;
+          const el = document.getElementById("errorMsg");
+          if (perfilAtual === "cliente" && u.replace(/\D/g, "").length !== 11) {
+            e.preventDefault();
+            el.textContent = "CPF inválido.";
+            el.style.display = "block";
+            return;
+          }
+          if (!u || !s) {
+            e.preventDefault();
+            el.textContent = "Preencha todos os campos.";
+            el.style.display = "block";
+            return;
+          }
+          el.style.display = "none";
           const btn = document.getElementById("btnLogin");
-          btn.textContent = "Entrando…";
           btn.disabled = true;
+          btn.innerHTML = '<span class="spinner"></span> Entrando…';
         });
     </script>
   </body>

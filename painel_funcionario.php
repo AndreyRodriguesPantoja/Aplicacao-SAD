@@ -21,7 +21,7 @@ $isGerente = ($perfil === 'gerente');
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel — SAD Super Seguro</title>
+  <title>Painel — Super Seguro</title>
   <link rel="stylesheet" href="css/apolices.css" />
   <style>
     /* ── Sobrescritas locais ── */
@@ -133,7 +133,7 @@ $isGerente = ($perfil === 'gerente');
 <header class="topbar">
   <a class="topbar-brand" href="painel_funcionario.php">
     <span class="shield">🛡️</span>
-    SAD | <span>Super Seguro</span>
+    <span>Super Seguro</span>
   </a>
   <nav class="topbar-nav">
     <a href="painel_funcionario.php" class="active">Painel</a>

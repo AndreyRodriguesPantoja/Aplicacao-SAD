@@ -1,0 +1,422 @@
+/* ============================================================
+   SAD Super Seguro — Login Screen CSS
+   Tokens idênticos ao painel de funcionários (apolices.css)
+   ============================================================ */
+
+:root {
+  --blue-deep: #1a3a5c;
+  --blue-mid: #1e5fa8;
+  --blue-light: #e8f0fb;
+  --amber: #fbbf24;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-500: #64748b;
+  --gray-700: #334155;
+  --gray-900: #0f172a;
+  --red: #991b1b;
+  --red-light: #fee2e2;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.22);
+  --t: 0.18s ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--gray-100);
+}
+
+/* ══ LADO ESQUERDO — hero (idêntico ao welcome-bar do painel) ══ */
+.hero {
+  background: linear-gradient(
+    135deg,
+    var(--blue-deep) 0%,
+    var(--blue-mid) 100%
+  );
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+/* Escudo decorativo idêntico ao ::after do welcome-bar */
+.hero::before {
+  content: "🛡️";
+  position: absolute;
+  right: -1.5rem;
+  bottom: -1rem;
+  font-size: 18rem;
+  opacity: 0.06;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  position: relative;
+  z-index: 1;
+  text-decoration: none;
+  color: #fff;
+}
+.hero-brand .shield {
+  font-size: 1.4rem;
+}
+.hero-brand span {
+  color: var(--amber);
+}
+
+.hero-body {
+  position: relative;
+  z-index: 1;
+}
+.hero-body h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.5px;
+}
+.hero-body p {
+  font-size: 0.93rem;
+  opacity: 0.78;
+  line-height: 1.6;
+  max-width: 340px;
+}
+
+/* Feature cards — mesmos estilos do modulo-card do painel */
+.hero-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+.feat {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  padding: 0.8rem 1rem;
+  transition: background var(--t);
+}
+.feat:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+.feat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+.feat-text strong {
+  display: block;
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+.feat-text span {
+  font-size: 0.77rem;
+  opacity: 0.7;
+}
+
+/* ══ LADO DIREITO — formulário ══ */
+.form-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--gray-100);
+}
+
+/* ── Login wrapper / card ── */
+.login-wrapper {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 2.25rem 2rem;
+}
+
+/* ── Logo / cabeçalho ── */
+.login-logo {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+.login-logo .logo-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid));
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 4px 16px rgba(30, 95, 168, 0.35);
+}
+.login-logo h4 {
+  font-weight: 700;
+  color: var(--blue-deep);
+  margin: 0 0 0.2rem;
+  font-size: 1.25rem;
+}
+.login-logo p {
+  color: var(--gray-500);
+  font-size: 0.83rem;
+  margin: 0;
+}
+
+/* ── Seletor de perfil (abas) ── */
+.perfil-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+  background: var(--gray-100);
+  border-radius: var(--radius-md);
+  padding: 0.3rem;
+  margin-bottom: 1.5rem;
+}
+.perfil-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.55rem 0.3rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--t);
+  font-family: inherit;
+}
+.perfil-tab .tab-icon {
+  font-size: 1.2rem;
+}
+.perfil-tab .tab-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.perfil-tab.active {
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+}
+.perfil-tab.active .tab-label {
+  color: var(--blue-mid);
+}
+
+/* ── Form label ── */
+.form-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 0.35rem;
+}
+
+/* ── Input com ícone ── */
+.input-icon-wrap {
+  position: relative;
+}
+.input-icon-wrap .icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  pointer-events: none;
+  line-height: 1;
+}
+.input-icon-wrap input {
+  width: 100%;
+  padding: 0.52rem 0.8rem 0.52rem 2.35rem;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--gray-900);
+  background: #fff;
+  height: 42px;
+  transition:
+    border-color var(--t),
+    box-shadow var(--t);
+}
+.input-icon-wrap input:focus {
+  outline: none;
+  border-color: var(--blue-mid);
+  box-shadow: 0 0 0 3px rgba(30, 95, 168, 0.14);
+}
+.input-icon-wrap input::placeholder {
+  color: #94a3b8;
+}
+
+/* Toggle senha */
+.pw-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--gray-500);
+  padding: 0.1rem;
+  line-height: 1;
+  transition: color var(--t);
+}
+.pw-toggle:hover {
+  color: var(--blue-mid);
+}
+
+/* ── Erro ── */
+.error-msg {
+  display: none;
+  background: var(--red-light);
+  color: var(--red);
+  border-left: 3px solid var(--red);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.9rem;
+  font-size: 0.84rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+/* ── Botão de login ── */
+.btn-login {
+  width: 100%;
+  height: 44px;
+  background: var(--blue-mid);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition:
+    background var(--t),
+    transform var(--t);
+}
+.btn-login:hover:not(:disabled) {
+  background: #1750a0;
+}
+.btn-login:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Spinner inline */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.55s linear infinite;
+  display: inline-block;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Divisor ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--gray-500);
+  font-size: 0.78rem;
+}
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--gray-200);
+}
+
+/* ── Rodapé ── */
+.login-footer {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--gray-500);
+}
+.login-footer a {
+  color: var(--blue-mid);
+  font-weight: 600;
+  text-decoration: none;
+}
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ── Responsivo ── */
+@media (max-width: 768px) {
+  body {
+    grid-template-columns: 1fr;
+  }
+  .hero {
+    display: none;
+  }
+  .form-side {
+    padding: 1.5rem 1rem;
+    background: linear-gradient(
+      135deg,
+      var(--blue-deep) 0%,
+      var(--blue-mid) 100%
+    );
+    min-height: 100vh;
+  }
+  .login-card {
+    box-shadow: var(--shadow-lg);
+  }
+}

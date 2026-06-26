@@ -9,11 +9,10 @@
   <body>
     <!-- ── Topbar ── -->
     <header class="topbar">
-      <a class="topbar-brand" href="index.html">
+      <a class="topbar-brand" href="painel_funcionario.php">
         <span>Super Seguro</span>
       </a>
       <nav class="topbar-nav">
-        <a href="index.html">Dashboard</a>
         <a href="painel_funcionario.php">Painel</a>
         <a href="apolices_analista.html" class="active">Apólices</a>
         <a href="logout.php">Sair</a>
@@ -514,12 +513,17 @@
               expirada: '<span class="badge badge-expirada">Expirada</span>',
             })[s] || s;
 
-          const badgeRisco = (r) => {
-            const v = Number(r || 0);
-            if (v <= 2) return '<span class="badge badge-baixo">Baixo</span>';
-            if (v <= 5)
-              return '<span class="badge badge-moderado">Moderado</span>';
-            return '<span class="badge badge-alto">Alto</span>';
+          // Usa risco_label + score_risco vindos do servidor (motor atuarial real)
+          const badgeRisco = (label, score) => {
+            const cfg = {
+              Alto: { cls: "badge-alto", txt: "Alto" },
+              Moderado: { cls: "badge-moderado", txt: "Moderado" },
+              Baixo: { cls: "badge-baixo", txt: "Baixo" },
+            };
+            const c = cfg[label] || { cls: "badge-expirada", txt: "—" };
+            const pts =
+              score > 0 ? ` <small style="opacity:.7">(${score})</small>` : "";
+            return `<span class="badge ${c.cls}">${c.txt}${pts}</span>`;
           };
 
           tbody.innerHTML = apolices
@@ -532,7 +536,7 @@
         <td>${a.tipo_seguro || "—"}</td>
         <td>${fmt.moeda(a.valor_cobertura)}</td>
         <td>${fmt.moeda(a.valor_premio)}</td>
-        <td>${badgeRisco(a.media_risco)}</td>
+        <td>${badgeRisco(a.risco_label, a.score_risco)}</td>
         <td style="white-space:nowrap;font-size:.82rem">
           ${fmt.data(a.data_inicio)} →<br>${fmt.data(a.data_fim)}
         </td>
@@ -643,7 +647,11 @@
 
         // ── Salvar nova apólice ──
         async salvarApolice() {
-          const usuarioId = document.getElementById("novaApUsuarioId").value;
+          // cpf digitado no campo de busca (o PHP resolve o usuario_id internamente)
+          const cpf = document
+            .getElementById("novaApCpf")
+            .value.replace(/\D/g, "");
+          const clienteId = document.getElementById("novaApUsuarioId").value;
           const tipo = document.getElementById("novaApTipo").value;
           const cobertura = document.getElementById("novaApCobertura").value;
           const premio = document.getElementById("novaApPremio").value;
@@ -652,7 +660,7 @@
           const status = document.getElementById("novaApStatus").value;
           const obs = document.getElementById("novaApObs").value;
 
-          if (!usuarioId) {
+          if (!clienteId || !cpf) {
             toast("Busque e selecione um cliente primeiro.", "error");
             return;
           }
@@ -670,11 +678,12 @@
           btn.innerHTML = '<span class="spinner"></span> Salvando…';
 
           try {
+            // Envia como JSON; o PHP usa o CPF para localizar o cliente
             const res = await fetch("get_apolices.php", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                usuario_id: Number(usuarioId),
+                cpf: cpf,
                 tipo_seguro: tipo,
                 valor_cobertura: parseFloat(cobertura),
                 valor_premio: parseFloat(premio) || 0,
@@ -800,8 +809,16 @@
         });
       });
 
-      // Inicializa
-      document.addEventListener("DOMContentLoaded", () => App.carregar());
+      // Inicializa — redireciona para login se sessão expirada (401)
+      document.addEventListener("DOMContentLoaded", async () => {
+        // Faz uma probe rápida para verificar se a sessão ainda é válida
+        const probe = await fetch("get_apolices.php?t=" + Date.now());
+        if (probe.status === 401) {
+          window.location.href = "login-screen.html?erro=sessao";
+          return;
+        }
+        App.carregar();
+      });
     </script>
   </body>
 </html>

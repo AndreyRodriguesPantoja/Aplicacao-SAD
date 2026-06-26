@@ -1,6 +1,6 @@
 <?php
 // ============================================================
-// get_apolices.php — API unificada de Apólices (versão final)
+// get_apolices.php — API | Apólice
 //
 // O JS do analista envia:
 //   POST  application/json  { usuario_id, tipo_seguro, valor_cobertura,
@@ -239,9 +239,38 @@ try {
                 a.data_fim,
                 a.status,
                 a.observacoes,
+                -- Score real: registros do motor atuarial têm BMI=0
+                -- Converte escala 0-10 → 0-100 e classifica
                 ROUND(COALESCE((
-                    SELECT AVG(c.Response) FROM clientes c WHERE c.usuario_id = u.id
-                ), 0), 2) AS media_risco
+                    SELECT AVG(c.Response) * 10
+                    FROM clientes c
+                    WHERE c.usuario_id = u.id
+                      AND c.BMI = 0
+                ), (
+                    -- Fallback: score do dashboard antigo normalizado
+                    SELECT AVG(c2.Response)
+                    FROM clientes c2
+                    WHERE c2.usuario_id = u.id
+                      AND c2.BMI > 0
+                ), 0), 0) AS score_risco,
+                -- Label de risco baseado no score 0-100
+                CASE
+                    WHEN COALESCE((
+                        SELECT AVG(c.Response)*10 FROM clientes c
+                        WHERE c.usuario_id = u.id AND c.BMI = 0
+                    ),(
+                        SELECT AVG(c2.Response) FROM clientes c2
+                        WHERE c2.usuario_id = u.id AND c2.BMI > 0
+                    ),0) >= 60 THEN 'Alto'
+                    WHEN COALESCE((
+                        SELECT AVG(c.Response)*10 FROM clientes c
+                        WHERE c.usuario_id = u.id AND c.BMI = 0
+                    ),(
+                        SELECT AVG(c2.Response) FROM clientes c2
+                        WHERE c2.usuario_id = u.id AND c2.BMI > 0
+                    ),0) >= 30 THEN 'Moderado'
+                    ELSE 'Baixo'
+                END AS risco_label
             FROM apolices a
             JOIN usuarios u ON u.id = a.usuario_id
             $whereSql

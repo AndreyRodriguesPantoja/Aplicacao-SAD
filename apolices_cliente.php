@@ -35,7 +35,14 @@ try {
             a.id, a.numero_apolice, a.tipo_seguro,
             a.valor_cobertura, a.valor_premio,
             a.data_inicio, a.data_fim, a.status, a.observacoes,
-            f.nome AS analista_nome
+            f.nome AS analista_nome,
+            -- Sinistro mais recente desta apólice
+            (SELECT s.numero_sinistro FROM sinistros s
+             WHERE s.apolice_id = a.id
+             ORDER BY s.id DESC LIMIT 1) AS ultimo_sinistro,
+            (SELECT s.status FROM sinistros s
+             WHERE s.apolice_id = a.id
+             ORDER BY s.id DESC LIMIT 1) AS status_sinistro
         FROM apolices a
         LEFT JOIN funcionarios f ON f.id = a.analista_id
         $whereSql
@@ -93,150 +100,13 @@ $tipoCor   = ['Vida'=>'#fee2e2','Saude'=>'#dbeafe','Auto'=>'#fef3c7','Residencia
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Minhas Apólices — Super Seguro</title>
   <link rel="stylesheet" href="css/apolices.css" />
-  <style>
-    body { background: #f1f5f9; }
-
-    /* ── Welcome bar ── */
-    .welcome-bar {
-      background: linear-gradient(135deg, #1a3a5c 0%, #1e5fa8 100%);
-      color: #fff;
-      padding: 2rem 2rem 4.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .welcome-bar::after {
-      content: '📋';
-      position: absolute;
-      right: 2rem; top: 50%;
-      transform: translateY(-50%);
-      font-size: 6rem;
-      opacity: .08;
-      pointer-events: none;
-    }
-    .welcome-bar h1 { font-size: 1.4rem; font-weight: 700; margin: 0 0 .25rem; }
-    .welcome-bar p  { font-size: .88rem; opacity: .8; margin: 0; }
-
-    /* ── Filtros de tipo (chips) ── */
-    .chips {
-      display: flex; flex-wrap: wrap; gap: .5rem;
-      margin-bottom: 1.25rem;
-    }
-    .chip {
-      display: inline-flex; align-items: center; gap: .4rem;
-      padding: .35rem .9rem;
-      border-radius: 20px;
-      border: 1.5px solid var(--gray-200);
-      background: #fff;
-      font-size: .82rem; font-weight: 500;
-      color: var(--gray-700);
-      cursor: pointer;
-      text-decoration: none;
-      transition: all .15s ease;
-    }
-    .chip:hover { border-color: var(--blue-mid); color: var(--blue-mid); }
-    .chip.active {
-      background: var(--blue-mid); color: #fff;
-      border-color: var(--blue-mid);
-    }
-
-    /* ── Cards de apólice ── */
-    .apolice-card {
-      background: #fff;
-      border: 1.5px solid var(--gray-200);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
-      transition: box-shadow .2s, transform .2s;
-    }
-    .apolice-card:hover {
-      box-shadow: 0 6px 24px rgba(0,0,0,.11);
-      transform: translateY(-2px);
-    }
-    .apolice-card-head {
-      background: linear-gradient(135deg, #1a3a5c, #1e5fa8);
-      color: #fff;
-      padding: 1.1rem 1.25rem;
-      display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
-    }
-    .apolice-card-head .tipo-wrap { display: flex; align-items: center; gap: .75rem; }
-    .tipo-badge-icon {
-      width: 42px; height: 42px;
-      border-radius: 11px;
-      background: rgba(255,255,255,.18);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem;
-      flex-shrink: 0;
-    }
-    .apolice-card-head .tipo  { font-size: 1rem; font-weight: 700; }
-    .apolice-card-head .numero { font-size: .75rem; opacity: .75; font-family: monospace; margin-top: .15rem; }
-    .status-badge {
-      font-size: .73rem; font-weight: 600;
-      padding: .25em .75em; border-radius: 20px;
-      flex-shrink: 0; align-self: flex-start;
-    }
-    .apolice-card-body { padding: 1.1rem 1.25rem; }
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: .75rem 1.25rem;
-      margin-bottom: .85rem;
-    }
-    .info-cell span   { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; color: var(--gray-500); margin-bottom: .2rem; }
-    .info-cell strong { font-size: .9rem; color: #0f172a; font-weight: 600; }
-    .info-cell.destaque strong { font-size: 1.05rem; color: var(--blue-deep); }
-
-    /* Barra de vigência */
-    .vigencia-wrap { margin-top: .5rem; }
-    .vigencia-wrap label { font-size: .75rem; color: var(--gray-500); display: flex; justify-content: space-between; margin-bottom: .3rem; }
-    .bar-track { background: var(--gray-200); border-radius: 99px; height: 6px; overflow: hidden; }
-    .bar-fill  { height: 100%; border-radius: 99px; transition: width .5s ease; }
-
-    /* Rodapé do card */
-    .apolice-card-foot {
-      padding: .8rem 1.25rem;
-      background: var(--gray-50);
-      border-top: 1px solid var(--gray-100);
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: .5rem;
-    }
-    .apolice-card-foot .analista { font-size: .78rem; color: var(--gray-500); }
-    .apolice-card-foot .obs      { font-size: .78rem; color: var(--gray-700); font-style: italic; }
-
-    /* Modal */
-    .modal-backdrop { display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:200;align-items:center;justify-content:center;padding:1rem; }
-    .modal-backdrop.open { display:flex; }
-    .modal-box { background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:fadeUp .2s ease; }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-    .modal-head { padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between; }
-    .modal-head h3 { font-size:1.05rem;font-weight:700;margin:0;color:var(--blue-deep); }
-    .modal-close { background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--gray-500);padding:.2rem .4rem;border-radius:6px;transition:all .15s; }
-    .modal-close:hover { background:var(--gray-100);color:#0f172a; }
-    .modal-body { padding:1.5rem; }
-    .modal-foot { padding:1rem 1.5rem;border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;gap:.75rem; }
-
-    /* Detalhe modal */
-    .detalhe-grid { display:grid;grid-template-columns:1fr 1fr;gap:.75rem 1.5rem; }
-    .detalhe-item span   { font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500); }
-    .detalhe-item strong { display:block;font-size:.92rem;color:#0f172a;margin-top:.15rem; }
-
-    @media(max-width:768px) {
-      .info-grid { grid-template-columns:1fr 1fr; }
-      .detalhe-grid { grid-template-columns:1fr; }
-      .welcome-bar::after { display:none; }
-      .page-wrapper { padding:1rem; }
-    }
-    @media(max-width:480px) {
-      .info-grid { grid-template-columns:1fr; }
-      .apolice-card-head { flex-direction:column; }
-    }
-  </style>
+  <link rel="stylesheet" href="css/apolices_cliente.css" />
 </head>
 <body>
 
 <!-- ── Topbar ── -->
 <header class="topbar">
   <a class="topbar-brand" href="painel_cliente.php">
-    <span class="shield">🛡️</span>
     <span>Super Seguro</span>
   </a>
   <nav class="topbar-nav">
@@ -377,7 +247,15 @@ $tipoCor   = ['Vida'=>'#fee2e2','Saude'=>'#dbeafe','Auto'=>'#fef3c7','Residencia
       <!-- Rodapé -->
       <div class="apolice-card-foot">
         <div>
-          <?php if ($ap['observacoes']): ?>
+          <?php if ($ap['status'] === 'suspensa' && $ap['ultimo_sinistro']): ?>
+          <div style="font-size:.78rem;font-weight:600;color:#991b1b;display:flex;align-items:center;gap:.35rem">
+            🔒 Apólice suspensa — Sinistro
+            <code style="background:#fee2e2;padding:.1em .4em;border-radius:4px">
+              <?= htmlspecialchars($ap['ultimo_sinistro']) ?>
+            </code>
+            em análise
+          </div>
+          <?php elseif ($ap['observacoes']): ?>
           <div class="obs">📝 <?= htmlspecialchars(mb_strimwidth($ap['observacoes'], 0, 80, '…')) ?></div>
           <?php endif; ?>
           <?php if ($ap['analista_nome']): ?>

@@ -1,112 +1,150 @@
-body { 
-  background-color: #f4f7f6; 
-  padding: 30px;
-} 
+/* ==========================================================================
+   SUPER SEGURO - ESTILOS CENTRALIZADOS
+   ========================================================================== */
 
-.navbar { 
+/* --- Base & Estrutura --- */
+body {
+  background-color: #f1f5f9;
+  font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #334155;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* --- Barra de Navegação Azul Escuro (Identidade) --- */
+.navbar-brand,
+.header-bg {
+  background: linear-gradient(135deg, #1a3a5c 0%, #1e5fa8 100%);
+  color: #fff;
+  padding: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-} 
+}
 
-.card {
-  border: none; 
-  border-radius: 8px; 
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  padding: 2px;
+/* --- Cards Estilo Moderno --- */
+.card,
+.modern-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  border: none;
   margin-bottom: 30px;
-} 
+  padding: 2rem;
+}
 
-/* Espaço entre Simulador e Filtros */
-.col-lg-4 .card {
+.card-header {
+  font-weight: 700;
+  background-color: #0d6efd;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 12px 12px 0 0;
+  margin: -2rem -2rem 1.5rem -2rem; /* Alinhamento flush */
+}
+
+/* --- Componentes de Score (KPIs) --- */
+.kpi-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-left: 6px solid #007bff;
   margin-bottom: 20px;
 }
 
-#butao1 {
-  margin-bottom: 5px; 
-} 
+.score-big {
+  font-size: 4rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 1rem 0;
+}
 
-.card-header {
-  font-weight: bold;
-  background-color: #0d6efd; 
-  color: white;
-} 
+.status-badge {
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  display: inline-block;
+}
 
-.kpi-card { 
-  background: #ffffff; 
-  border-radius: 12px;
-  padding: 10px; 
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); 
-  border-left: 6px solid #007bff; 
-} 
+/* --- Árvore de Decisão --- */
+.tree-node {
+  border: 2px solid #0d6efd;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 5px;
+  background-color: white;
+  text-align: center;
+}
 
-.kpi-card h6 {
-  margin-bottom: 8px; 
-  color: #555; 
-  font-size: 0.95rem; 
-} 
+/* --- Tabelas Profissionais --- */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
 
-.kpi-card h3 { 
-  margin: 0; 
-  font-weight: 700; 
-  color: #222;
-} 
+.table th {
+  background-color: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
 
-.kpi-success { 
-  border-left-color: #28a745; 
-} 
-
-.kpi-warning { 
-  border-left-color: #ffc107; 
-} 
-
-.kpi-danger { 
-  border-left-color: #dc3545; 
-} 
-
-.table th, 
 .table td {
-  vertical-align: middle !important;
-} 
-
-.badge-baixo { 
-  background-color: #28a745; 
-  color: #fff;
+  padding: 15px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
 }
 
-.badge-moderado { 
-  background-color: #ffc107; 
-  color: #212529;
-} 
+.table tr:hover {
+  background-color: #f8fafc;
+}
 
-.badge-alto { 
-  background-color: #dc3545; 
-  color: #fff; 
+.select-produto {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
 }
-/*arvore decisao*/
-.tree-node { 
-border: 2px solid #0d6efd; 
-border-radius: 8px; 
-padding: 10px; 
-margin: 5px;
-background-color: white;
-text-align: center;
+
+/* --- Classes de Risco (Cores) --- */
+.risk-low,
+.badge-baixo {
+  background-color: #d1e7dd;
+  color: #0f5132;
 }
-.tree-connector { 
-color: #6c757d; 
-font-size: 20px;
+.risk-medium,
+.badge-moderado {
+  background-color: #fff3cd;
+  color: #856404;
 }
-.risk-low { 
-background-color: #d1e7dd; 
-color: #0f5132; 
+.risk-high,
+.badge-alto {
+  background-color: #f8d7da;
+  color: #721c24;
 }
-.risk-medium { 
-background-color: #fff3cd; 
-color: #856404; 
+.risk-rejected {
+  background-color: #dc3545;
+  color: white;
 }
-.risk-high { 
-background-color: #f8d7da; 
-color: #721c24; 
+
+.kpi-success {
+  border-left-color: #28a745;
 }
-.risk-rejected { 
-background-color: #dc3545;
-color: white; 
+.kpi-warning {
+  border-left-color: #ffc107;
+}
+.kpi-danger {
+  border-left-color: #dc3545;
 }

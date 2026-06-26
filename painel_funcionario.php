@@ -176,7 +176,12 @@ $isGerente = ($perfil === 'gerente');
       <p>Analise perfis de clientes por idade e IMC para classificar o risco e apoiar decisões de aprovação.</p>
       <div class="modulo-arrow">Acessar módulo →</div>
     </a>
-
+     <a href="lista_clientes_analise.php" class="modulo-card">
+      <div class="modulo-icon" style="background:#fff7ed">🔍</div>
+      <h3>Análise de Risco</h3>
+      <p>Motor de subscrição profissional. Calcule scores e gere multiplicadores de prêmio baseados em riscos regionais.</p>
+      <div class="modulo-arrow">Acessar Análise →</div>
+    </a> 
   </div><div class="section-title">Informações da Sessão</div>
   <div class="card" style="background:#fff; border-radius:14px; padding:1.5rem; box-shadow:0 4px 20px rgba(0,0,0,.05);">
     <div class="card-body" style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">

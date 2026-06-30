@@ -59,7 +59,23 @@ $isGerente = ($perfil === 'gerente');
   <!-- Grade de módulos -->
   <div class="modulos-grid">
 
-    <!-- Apólices — disponível para analista e gerente -->
+      <!-- Cadastro de clientes — [analista|gerente] -->
+    <a href="cadastro_cliente.php" class="modulo-card">
+      <div class="modulo-icon" style="background:#ede9fe">👤</div>
+      <h3>Cadastro de Clientes</h3>
+      <p>Registre novos clientes no sistema com dados pessoais, endereço e situação financeira.</p>
+      <div class="modulo-arrow">Acessar módulo →</div>
+    </a>
+
+      <!-- Análise de Risco — [analista|gerente] -->
+    <a href="lista_clientes_analise.php" class="modulo-card">
+      <div class="modulo-icon" style="background:#fee2e2">🔍</div>
+      <h3>Análise de Risco</h3>
+      <p>Motor atuarial completo: score por idade, IMC, renda, geolocalização, condições pré-existentes e profissão.</p>
+      <div class="modulo-arrow">Acessar módulo →</div>
+    </a>
+
+    <!-- Apólices — [analista|gerente] -->
     <a href="apolices_analista.html" class="modulo-card">
       <div class="modulo-icon" style="background:#dbeafe">📋</div>
       <h3>Gestão de Apólices</h3>
@@ -67,15 +83,7 @@ $isGerente = ($perfil === 'gerente');
       <div class="modulo-arrow">Acessar módulo →</div>
     </a>
 
-    <!-- Análise de Risco — analista e gerente -->
-    <a href="lista_clientes_analise.php" class="modulo-card">
-      <div class="modulo-icon" style="background:#fee2e2">⚡</div>
-      <h3>Análise de Risco</h3>
-      <p>Motor atuarial completo: score por idade, IMC, renda, geolocalização, condições pré-existentes e profissão.</p>
-      <div class="modulo-arrow">Acessar módulo →</div>
-    </a>
-
-    <!-- Sinistros — analista e gerente -->
+    <!-- Sinistros — [analista|gerente] -->
     <a href="sinistros.php" class="modulo-card">
       <div class="modulo-icon" style="background:#fef3c7">🔎</div>
       <h3>Análise de Sinistros</h3>
@@ -84,15 +92,15 @@ $isGerente = ($perfil === 'gerente');
     </a>
 
     <?php if ($isGerente): ?>
-    <!-- Dashboard BI — apenas gerente -->
+    <!-- Dashboard — [gerente] -->
     <a href="index.html" class="modulo-card">
       <div class="modulo-icon" style="background:#d1fae5">📊</div>
-      <h3>Dashboard BI</h3>
+      <h3>Dashboard</h3>
       <p>Acompanhe KPIs de risco, distribuição por faixa etária, gráficos e histórico de análises.</p>
       <div class="modulo-arrow">Acessar módulo →</div>
     </a>
 
-    <!-- Relatório — apenas gerente -->
+    <!-- Relatório — [gerente] -->
     <a href="index.html#relatorio" class="modulo-card">
       <div class="modulo-icon" style="background:#fef3c7">📈</div>
       <h3>Relatórios de Decisão</h3>
@@ -101,19 +109,7 @@ $isGerente = ($perfil === 'gerente');
     </a>
     <?php endif; ?>
 
-    <!-- Cadastro de clientes — analista e gerente -->
-    <a href="cadastro_cliente.php" class="modulo-card">
-      <div class="modulo-icon" style="background:#ede9fe">👤</div>
-      <h3>Cadastro de Clientes</h3>
-      <p>Registre novos clientes no sistema com dados pessoais, endereço e situação financeira.</p>
-      <div class="modulo-arrow">Acessar módulo →</div>
-    </a>
-     <a href="lista_clientes_analise.php" class="modulo-card">
-      <div class="modulo-icon" style="background:#fff7ed">🔍</div>
-      <h3>Análise de Risco</h3>
-      <p>Motor de subscrição profissional. Calcule scores e gere multiplicadores de prêmio baseados em riscos regionais.</p>
-      <div class="modulo-arrow">Acessar Análise →</div>
-    </a> 
+    
   </div><div class="section-title">Informações da Sessão</div>
   <div class="card" style="background:#fff; border-radius:14px; padding:1.5rem; box-shadow:0 4px 20px rgba(0,0,0,.05);">
     <div class="card-body" style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">

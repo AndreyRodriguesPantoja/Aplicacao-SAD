@@ -29,8 +29,11 @@ try {
             (SELECT MIN(a.data_fim) FROM apolices a
              WHERE a.usuario_id = u.id AND a.status = 'ativa'
                AND a.data_fim >= CURDATE())                         AS proximo_venc,
-            (SELECT ROUND(AVG(c.Response),1) FROM clientes c
-             WHERE c.usuario_id = u.id)                             AS media_risco
+            -- Score real do motor de Análise de Risco/Sinistro, escala 0-100
+            ROUND((
+                SELECT AVG(c.Response)*10 FROM clientes c
+                WHERE c.usuario_id = u.id AND c.origem IN ('analise_risco','sinistro')
+            ), 1) AS media_risco
         FROM usuarios u
         WHERE u.id = :id
     ");
@@ -62,8 +65,9 @@ $riscoLabel = '—';
 $riscoCor   = '#64748b';
 if ($dados['media_risco'] !== null) {
     $r = (float)$dados['media_risco'];
-    if ($r <= 2)      { $riscoLabel = 'Baixo';    $riscoCor = '#057a55'; }
-    elseif ($r <= 5)  { $riscoLabel = 'Moderado'; $riscoCor = '#d97706'; }
+    // Escala 0-100 (score real do motor de Análise de Risco)
+    if ($r < 30)      { $riscoLabel = 'Baixo';    $riscoCor = '#057a55'; }
+    elseif ($r < 60)  { $riscoLabel = 'Moderado'; $riscoCor = '#d97706'; }
     else              { $riscoLabel = 'Alto';      $riscoCor = '#991b1b'; }
 }
 
@@ -92,15 +96,7 @@ $statusBadge = [
       position: relative;
       overflow: hidden;
     }
-    .welcome-bar::after {
-      content: '🛡️';
-      position: absolute;
-      right: 2rem; top: 50%;
-      transform: translateY(-50%);
-      font-size: 6rem;
-      opacity: .08;
-      pointer-events: none;
-    }
+  
     .welcome-bar h1   { font-size: 1.6rem; font-weight: 700; margin: 0 0 .3rem; }
     .welcome-bar p    { font-size: .9rem;  opacity: .8; margin: 0; }
     .perfil-tag {
@@ -224,8 +220,7 @@ $statusBadge = [
 <!-- ── Topbar ── -->
 <header class="topbar">
   <a class="topbar-brand" href="painel_cliente.php">
-    <span class="shield"></span>
-    <span>Super Seguro</span>
+  <span>Super Seguro</span>
   </a>
   <nav class="topbar-nav">
     <a href="painel_cliente.php" class="active">Início</a>

@@ -1,0 +1,132 @@
+body {
+  background: #f1f5f9;
+}
+
+.card-cadastro-container {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  margin: 2rem auto;
+  border: 1px solid #e2e8f0;
+}
+.cadastro-subtitulo {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e3a5c;
+  margin: 1.5rem 0 0.75rem 0;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 0.4rem;
+}
+.cadastro-subtitulo:first-of-type {
+  margin-top: 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #334155;
+  outline: none;
+  transition: all 0.2s ease;
+}
+.form-control:focus {
+  border-color: #1e5fa8;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(30, 95, 168, 0.15);
+}
+.radio-group {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-submit-cadastro {
+  background: #1e5fa8;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.75rem 1.75rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 1.5rem;
+}
+.btn-submit-cadastro:hover {
+  background: #1a3a5c;
+}
+.full-width-field {
+  grid-column: 1 / -1;
+}
+
+.btn-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  margin-bottom: 1rem;
+}
+.btn-voltar:hover {
+  background: #f8fafc;
+  color: #1e3a5c;
+}
+
+.info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #1e5fa8;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: #1e3a5c;
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .page-wrapper {
+    padding: 1rem;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
